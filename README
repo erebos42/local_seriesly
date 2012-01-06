@@ -1,0 +1,3 @@
+local_seriesly
+=====
+This is a reimplementation of seriesly without Google's App Engine or Django
