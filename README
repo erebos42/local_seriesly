@@ -1,3 +1,8 @@
+==========
 local_seriesly
 =====
-This is a reimplementation of seriesly without Google's App Engine or Django
+This is a reimplementation of seriesly without Google's App Engine or Django. It lets you fetch the data of new episodes of your favourite tv show from tvrage.com and displays it as an html document. All those nifty little parts of the original seriesly like XMPP or RSS integration hasn't been implemented, cause i don't need it.
+
+This project uses the CSS and HTML stuff of the original Seriesly. (https://github.com/stefanw/seriesly)
+
+local_seriesly is licensed under the GNU Affero General Public License 3.0 (http://www.gnu.org/licenses/agpl-3.0.html)
