@@ -11,6 +11,8 @@
 
 import urllib
 import xml.dom.minidom as dom
+import copy
+import string
 from string import Template
 from datetime import datetime, timedelta
 from pytz import timezone
@@ -30,11 +32,11 @@ def filterData(data):
 	recently = []
 
 	for i in range(len(data)):
-
-		name = data[i]["series"][0]["name"]
-		network = data[i]["series"][0]["network"]
-		airtime = data[i]["series"][0]["airtime"]
-		episodes = data[i]["series"][0]["episodes"]
+		sid = data.keys()[i]
+		name = data[sid][0]["name"]
+		network = data[sid][0]["network"]
+		airtime = data[sid][0]["airtime"]
+		episodes = data[sid][0]["episodes"]
 		for temp in episodes:
 			tempepisode = temp.pop()
 			tempepisode["name"] = name
@@ -104,7 +106,7 @@ def outputDataDebug(filteredData):
 
 
 
-def outputData(filteredData):
+def outputData(filteredData, profile):
 	recentlyTemplate = Template('\
 		<li class=\"vevent episode-item\">\
 			<div class=\"clearfix\" style=\"width:100%\">\
@@ -142,7 +144,7 @@ def outputData(filteredData):
 	for i in range(len(filteredData["recently"])-1,-1,-1):
 		recently += recentlyTemplate.substitute(seasonnum=filteredData["recently"][i]["seasonnum"] + "x", epnum=filteredData["recently"][i]["epnum"], seriesname=filteredData["recently"][i]["name"], epname=filteredData["recently"][i]["title"], network=filteredData["recently"][i]["network"], deltatime=airdateToString(filteredData["recently"][i]["airdate"]))
 
-	fdwrite = open(currentdirpath + "/data/index.html", "w")
+	fdwrite = open(currentdirpath + "/data/" + profile + ".html", "w")
 	fdread = open(currentdirpath + "/media/template.html", "r")
 
 	for line in fdread:
@@ -240,14 +242,36 @@ def sortData(filteredData):
 	return {"last" : sortedlast, "coming" : sortedcoming, "recently" : sortedrecently}
 	
 
+def filterprofile(data, ids):
+	tempdata = {}
+	for i in range(len(data)):
+		if (ids.count(data[i].keys()[0]) > 0):
+			tempdata.update(data[i])
+	return tempdata
+
+
 def main():
 	print "Start!"
 
 	data = json.load(open(currentdirpath + '/data/seriesdb.json', 'rb'))
 
-	filteredData = filterData(data)
-	outputData(filteredData)
-	#outputDataDebug(filteredData)
+	# load cfg and store in dict
+	profiles = {}
+	fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
+	for line in fdcfg:
+		line = line.strip("\n")
+		name = string.split(line,"=")[0]
+		ids = string.split(line,"=")[1]
+		ids = string.split(ids,",")
+		profiles.update({name : ids})
+
+	for profile in profiles:
+		print "Generate HTML for: " + profile
+		tempdata = copy.deepcopy(data)
+		profiledata = filterprofile(tempdata, profiles[profile])
+		filteredData = filterData(profiledata)
+		outputData(filteredData, profile)
+		#outputDataDebug(filteredData)
 
 	print "Done!"
 

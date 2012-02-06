@@ -12,6 +12,7 @@
 
 import urllib
 import xml.dom.minidom as dom
+import string
 from string import Template
 from datetime import datetime, timedelta
 from pytz import timezone
@@ -89,16 +90,30 @@ def main():
 	print "Start!"
 
 	# http://services.tvrage.com/feeds/full_show_info.php?sid=8322
+	series_ids = []
 
 #	series_ids = {"11215", "8511", "18164", "15383", "19267", "15614", "7926", "3332", "3628", "24493", "21704", "3908", "3918", "8322", "6190", "5266", "12662", "6454", "20601", "25056", "7884", "6554", "18411", "25050"}
 #	series_ids = {"8322", "15614", "11215", "8511", "18164", "15383", "19267"}
-	series_ids = {"5266"}
+#	series_ids = {"5266"}
+
+	# TODO: read config file
+
+	fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
+	for line in fdcfg:
+		temp = string.split(line, "=")[1]
+		temp = string.split(temp, ",")
+		for e in temp:
+			series_ids.append(string.strip(e,"\n"))
+		
+	series_ids = list(set(series_ids))
+	series_ids.sort()
+
 	data = []
 
 	for id in series_ids:
 		print "Fetch Data for " + id
 		data.append({
-			"series" : getSeriesInfo("http://services.tvrage.com/feeds/full_show_info.php?sid=" + id)
+			id : getSeriesInfo("http://services.tvrage.com/feeds/full_show_info.php?sid=" + id)
 		})
 
 
