@@ -259,11 +259,13 @@ def main():
 	profiles = {}
 	fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
 	for line in fdcfg:
-		line = line.strip("\n")
-		name = string.split(line,"=")[0]
-		ids = string.split(line,"=")[1]
-		ids = string.split(ids,",")
-		profiles.update({name : ids})
+		line = string.replace(line, " ", "")
+		if (string.find(line, "#") == -1):
+			line = line.strip("\n")
+			name = string.split(line,"=")[0]
+			ids = string.split(line,"=")[1]
+			ids = string.split(ids,",")
+			profiles.update({name : ids})
 
 	for profile in profiles:
 		print "Generate HTML for: " + profile

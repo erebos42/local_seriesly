@@ -100,10 +100,12 @@ def main():
 
 	fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
 	for line in fdcfg:
-		temp = string.split(line, "=")[1]
-		temp = string.split(temp, ",")
-		for e in temp:
-			series_ids.append(string.strip(e,"\n"))
+		line = string.replace(line, " ", "")
+		if (string.find(line, "#") == -1):
+			temp = string.split(line, "=")[1]
+			temp = string.split(temp, ",")
+			for e in temp:
+				series_ids.append(string.strip(e,"\n"))
 		
 	series_ids = list(set(series_ids))
 	series_ids.sort()
