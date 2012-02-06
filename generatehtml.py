@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 # ToDo:
-# - sort data in html
 # - add support for html datetime tags
 # 
 #
@@ -16,9 +15,9 @@ import string
 from string import Template
 from datetime import datetime, timedelta
 from pytz import timezone
-import pytz
 import json
-import os, sys
+import os
+import sys
 
 # data structure:
 # - data {id, series}
@@ -26,6 +25,8 @@ import os, sys
 # --- episodes {episode}
 # ---- episode {epnum, title}
 
+
+# filter data for air date: last seven days, recently and coming up soon
 def filterData(data):
 	last = []
 	coming = []
@@ -41,7 +42,6 @@ def filterData(data):
 			tempepisode = temp.pop()
 			tempepisode["name"] = name
 			tempepisode["network"] = network
-			# todo: sort episode by date and stuff!!!
 
 			airdate = tempepisode["airdate"]
 
@@ -52,7 +52,8 @@ def filterData(data):
 			hour = airtime.split(":")[0]
 			minute = airtime.split(":")[1]
 
-
+			# what follows here is some weird time mojo. This should really be done accurately
+			# TODO: implement real timezone stuff
 			if (int(year) == 0):
 				year = 1
 			if ((int(month) < 1) or (int(month) > 12)):
@@ -62,12 +63,14 @@ def filterData(data):
 
 			airdatetime = datetime(int(year), int(month), int(day), int(hour), int(minute), 0, 0)
 
-			# todo timezone adjustment
+			# for now we just assume one timezone
 			airdatetime = airdatetime + timedelta(hours=6)
 
+			# calculate relative airtime
 			now = datetime.now()
 			temp = now - airdatetime
 
+			# filter depending on relative airtime
 			if (temp < timedelta(days=0)):
 				tempepisode["airdate"] = temp
 				coming.append(tempepisode)
@@ -80,6 +83,8 @@ def filterData(data):
 
 	return {"last" : last, "coming" : coming, "recently" : recently}
 
+# output the data on the console for debug purposes
+# hasn't been updated in quiet a while and probably won't show all data
 def outputDataDebug(filteredData):
 	last = filteredData["last"]
 	coming = filteredData["coming"]
@@ -105,7 +110,8 @@ def outputDataDebug(filteredData):
 
 
 
-
+# output data for a profile in html format
+# TODO: use these <time> tags
 def outputData(filteredData, profile):
 	recentlyTemplate = Template('\
 		<li class=\"vevent episode-item\">\
@@ -131,9 +137,10 @@ def outputData(filteredData, profile):
 		</li>\
 	')
 
-
+	# sort data
 	filteredData = sortData(filteredData)
 
+	# paste data in template
 	lastsevendays = ""
 	recently = ""
 	comingup = ""
@@ -144,6 +151,7 @@ def outputData(filteredData, profile):
 	for i in range(len(filteredData["recently"])-1,-1,-1):
 		recently += recentlyTemplate.substitute(seasonnum=filteredData["recently"][i]["seasonnum"] + "x", epnum=filteredData["recently"][i]["epnum"], seriesname=filteredData["recently"][i]["name"], epname=filteredData["recently"][i]["title"], network=filteredData["recently"][i]["network"], deltatime=airdateToString(filteredData["recently"][i]["airdate"]))
 
+	# use template.html to create new html file
 	fdwrite = open(currentdirpath + "/data/" + profile + ".html", "w")
 	fdread = open(currentdirpath + "/media/template.html", "r")
 
@@ -160,10 +168,12 @@ def outputData(filteredData, profile):
 
 
 
-
+# convert the airdate to a string
+# TODO: the "hour(s)" and "day(s)" parts shouldn't be added by hand. I guess theres a better version out there
 def airdateToString(airdate):
-
+# example data:
 # -2 days, 10:29:04.862377
+# 2 day(s), 10 hour(s) ago
 
 	ret = ""
 	days = 0
@@ -193,7 +203,7 @@ def airdateToString(airdate):
 
 
 
-
+# sort data according to airdate
 def sortData(filteredData):
 
 
@@ -242,6 +252,7 @@ def sortData(filteredData):
 	return {"last" : sortedlast, "coming" : sortedcoming, "recently" : sortedrecently}
 	
 
+# filter data for the wanted show ids
 def filterprofile(data, ids):
 	tempdata = {}
 	for i in range(len(data)):
@@ -253,6 +264,7 @@ def filterprofile(data, ids):
 def main():
 	print "Start!"
 
+	# load show database
 	data = json.load(open(currentdirpath + '/data/seriesdb.json', 'rb'))
 
 	# load cfg and store in dict
@@ -267,16 +279,23 @@ def main():
 			ids = string.split(ids,",")
 			profiles.update({name : ids})
 
+	# generate html file for every profile
 	for profile in profiles:
 		print "Generate HTML for: " + profile
+		# copy data to a temp var. Deepcopy is used since we work on the data but we need the original data for the next profile
 		tempdata = copy.deepcopy(data)
+		# filter for profile show ids
 		profiledata = filterprofile(tempdata, profiles[profile])
+		# filter data for airdate
 		filteredData = filterData(profiledata)
+		# output data to html
 		outputData(filteredData, profile)
+		# output data to console
 		#outputDataDebug(filteredData)
 
 	print "Done!"
 
+# Find the script path, so later we can find the show id config file and json database
 currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 if __name__ == '__main__':
