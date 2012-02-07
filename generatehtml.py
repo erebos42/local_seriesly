@@ -264,7 +264,11 @@ def filterprofile(data, ids):
 
 def generatehtml():
 	# load show database
-	data = json.load(open(currentdirpath + '/data/seriesdb.json', 'rb'))
+	try:
+		data = json.load(open(currentdirpath + '/data/seriesdb.json', 'rb'))
+	except IOError:
+		print "Couldn't find show data. Please fetch the data first!"
+		return
 
 	# load cfg and store in dict
 	profiles = {}

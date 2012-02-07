@@ -8,7 +8,7 @@ from optparse import OptionParser
 
 # remove html files and fetched data
 def remove():
-	print "Removing working data..."
+	print "Removing show data..."
 	currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
 	try:
 		os.remove(currentdirpath + "/data/seriesdb.json")
@@ -23,11 +23,21 @@ def remove():
 			line = line.strip("\n")
 			name = string.split(line,"=")[0]
 			profiles.append(name)
+	print "Removing profile data..."
 	for profile in profiles:
 		try:
 			os.remove(currentdirpath + "/data/" + profile + ".html")
 		except OSError:
 			pass
+	print "Removing compiled python scripts..."
+	try:
+		os.remove(currentdirpath + "/fetchdata.pyc")
+	except OSError:
+		pass
+	try:
+		os.remove(currentdirpath + "/generatehtml.pyc")
+	except OSError:
+		pass
 
 # fetch data
 def fetch():
