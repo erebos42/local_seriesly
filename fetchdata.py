@@ -18,6 +18,8 @@ from pytz import timezone
 import json
 import os
 import sys
+import threading
+import httplib
 
 # data structure (more or less):
 # - data {id, series}
@@ -26,17 +28,22 @@ import sys
 # ---- episode {epnum, title}
 
 # This method fetches the data for a specific show (url)
-def getSeriesInfo(url):
+def getSeriesInfo(ids, data):
 	series = []
 
 	done = 0
 
+	url_template = "http://services.tvrage.com/feeds/full_show_info.php?sid="
+
 	while(done == 0):
 		try:
-			dict = dom.parse(urllib2.urlopen(url))
+			dict = dom.parse(urllib2.urlopen(url_template + ids))
 			done = 1
+		except httplib.IncompleteRead:
+			print "[" + ids.rjust(5) + "] Connection error - retry"
+			pass
 		except IOError:
-			print "Connection Timedout - retry"
+			print "[" + ids.rjust(5) + "] Connection timed out - retry"
 			pass		
 
 	seriesname = dict.getElementsByTagName('name')[0].toxml().replace("<name>", "").replace("</name>", "")
@@ -49,7 +56,10 @@ def getSeriesInfo(url):
 		"episodes" : getEpisodesInfo(dict)
 	})
 
-	return series
+#	return series
+
+	print "[" + ids.rjust(5) + "] Stopping thread to fetch data"
+	data.append({ids : series})
 
 # parse dom dict for episodes
 def getEpisodesInfo(dict):
@@ -90,7 +100,7 @@ def getEpisodeInfo(node):
 	return episode
 
 def main():
-	print "Start!"
+	print "[     ] Starting fetching data"
 
 	# http://services.tvrage.com/feeds/full_show_info.php?sid=8322
 	series_ids = []
@@ -111,19 +121,23 @@ def main():
 	data = []
 
 	# fetch data for every show and store in data dict
-	# TODO: maybe this can be multithreaded to improve the network performance
-#	for id in series_ids:
-#		print "Fetch Data for " + id
-#		data.append({
-#			id : getSeriesInfo("http://services.tvrage.com/feeds/full_show_info.php?sid=" + id)
-#		})
-
-	# TODO: insert the threaded stuff here
+	# TODO: maybe the running thread count should be limited
+	threads = []
+	for ids in series_ids:
+		print "[" + ids.rjust(5) + "] Starting thread to fetch data"
+		temp_thread = threading.Thread(target=getSeriesInfo, args = (ids,data))
+		threads.append(temp_thread)
+	for t in threads:
+		t.start()
+	for t in threads:
+		t.join()
 
 	# dump the data to the json database, so it can be used by the other script later
-	json.dump(data, open(currentdirpath + '/data/seriesdb.json', 'wb'))
+	json_path = currentdirpath + '/data/seriesdb.json'
+	print "[     ] Writing data to " + json_path
+	json.dump(data, open(json_path, 'wb'))
 
-	print "Done!"
+	print "[     ] Finished fetching data"
 
 
 # get the script path, so the config- and json-file can be found
@@ -131,3 +145,14 @@ currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+
+
+
+
+
