@@ -262,9 +262,7 @@ def filterprofile(data, ids):
 	return tempdata
 
 
-def main():
-	print "Start!"
-
+def generatehtml():
 	# load show database
 	data = json.load(open(currentdirpath + '/data/seriesdb.json', 'rb'))
 
@@ -294,10 +292,8 @@ def main():
 		# output data to console
 		#outputDataDebug(filteredData)
 
-	print "Done!"
-
 # Find the script path, so later we can find the show id config file and json database
 currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 if __name__ == '__main__':
-    main()
+    generatehtml()

@@ -39,6 +39,9 @@ def getSeriesInfo(ids, data):
 		try:
 			dict = dom.parse(urllib2.urlopen(url_template + ids))
 			done = 1
+		except httplib.BadStatusLine:
+			print "[" + ids.rjust(5) + "] Connection error - retry"
+			pass			
 		except httplib.IncompleteRead:
 			print "[" + ids.rjust(5) + "] Connection error - retry"
 			pass
@@ -99,7 +102,7 @@ def getEpisodeInfo(node):
 	})
 	return episode
 
-def main():
+def fetchdata():
 	print "[     ] Starting fetching data"
 
 	# http://services.tvrage.com/feeds/full_show_info.php?sid=8322
@@ -144,15 +147,4 @@ def main():
 currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 if __name__ == '__main__':
-    main()
-
-
-
-
-
-
-
-
-
-
-
+    fetchdata()
