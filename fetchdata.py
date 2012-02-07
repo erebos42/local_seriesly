@@ -112,11 +112,13 @@ def main():
 
 	# fetch data for every show and store in data dict
 	# TODO: maybe this can be multithreaded to improve the network performance
-	for id in series_ids:
-		print "Fetch Data for " + id
-		data.append({
-			id : getSeriesInfo("http://services.tvrage.com/feeds/full_show_info.php?sid=" + id)
-		})
+#	for id in series_ids:
+#		print "Fetch Data for " + id
+#		data.append({
+#			id : getSeriesInfo("http://services.tvrage.com/feeds/full_show_info.php?sid=" + id)
+#		})
+
+	# TODO: insert the threaded stuff here
 
 	# dump the data to the json database, so it can be used by the other script later
 	json.dump(data, open(currentdirpath + '/data/seriesdb.json', 'wb'))
