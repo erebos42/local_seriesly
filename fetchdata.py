@@ -1,3 +1,4 @@
+#!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 
 # ToDo:
@@ -8,7 +9,7 @@
 #
 
 
-import urllib
+import urllib2
 import xml.dom.minidom as dom
 import string
 from string import Template
@@ -32,7 +33,7 @@ def getSeriesInfo(url):
 
 	while(done == 0):
 		try:
-			dict = dom.parse(urllib.urlopen(url))
+			dict = dom.parse(urllib2.urlopen(url))
 			done = 1
 		except IOError:
 			print "Connection Timedout - retry"
@@ -47,6 +48,7 @@ def getSeriesInfo(url):
 		"airtime" : airtime,
 		"episodes" : getEpisodesInfo(dict)
 	})
+
 	return series
 
 # parse dom dict for episodes
@@ -109,6 +111,7 @@ def main():
 	data = []
 
 	# fetch data for every show and store in data dict
+	# TODO: maybe this can be multithreaded to improve the network performance
 	for id in series_ids:
 		print "Fetch Data for " + id
 		data.append({

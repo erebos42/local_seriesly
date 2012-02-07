@@ -1,3 +1,4 @@
+#!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 
 # ToDo:
@@ -8,8 +9,8 @@
 #
 
 
-import urllib
-import xml.dom.minidom as dom
+#import urllib
+#import xml.dom.minidom as dom
 import copy
 import string
 from string import Template
