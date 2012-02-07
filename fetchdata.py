@@ -112,7 +112,7 @@ def fetchdata():
 	fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
 	for line in fdcfg:
 		line = string.replace(line, " ", "")
-		if (string.find(line, "#") == -1):
+		if (string.find(line, "#") == -1 and string.find(line, "=") != -1):
 			temp = string.split(line, "=")[1]
 			temp = string.split(temp, ",")
 			for e in temp:

@@ -275,7 +275,7 @@ def generatehtml():
 	fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
 	for line in fdcfg:
 		line = string.replace(line, " ", "")
-		if (string.find(line, "#") == -1):
+		if (string.find(line, "#") == -1 and string.find(line, "=") != -1):
 			line = line.strip("\n")
 			name = string.split(line,"=")[0]
 			ids = string.split(line,"=")[1]
