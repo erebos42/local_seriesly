@@ -29,10 +29,11 @@ import httplib
 
 # This method fetches the data for a specific show (url)
 def getSeriesInfo(ids, data):
+
+	pool_sema.acquire()
+
 	series = []
-
 	done = 0
-
 	url_template = "http://services.tvrage.com/feeds/full_show_info.php?sid="
 
 	while(done == 0):
@@ -59,10 +60,12 @@ def getSeriesInfo(ids, data):
 		"episodes" : getEpisodesInfo(dict)
 	})
 
-#	return series
-
 	print "[" + ids.rjust(5) + "] Stopping thread to fetch data"
 	data.append({ids : series})
+
+	pool_sema.release()
+
+
 
 # parse dom dict for episodes
 def getEpisodesInfo(dict):
@@ -124,7 +127,6 @@ def fetchdata():
 	data = []
 
 	# fetch data for every show and store in data dict
-	# TODO: maybe the running thread count should be limited
 	threads = []
 	for ids in series_ids:
 		print "[" + ids.rjust(5) + "] Starting thread to fetch data"
@@ -134,6 +136,10 @@ def fetchdata():
 		t.start()
 	for t in threads:
 		t.join()
+
+
+	# TODO: catch keyboard interrupt
+
 
 	# dump the data to the json database, so it can be used by the other script later
 	json_path = currentdirpath + '/data/seriesdb.json'
@@ -145,6 +151,10 @@ def fetchdata():
 
 # get the script path, so the config- and json-file can be found
 currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
+
+# limit the number of threads/connections that can be made simultaneous
+maxconnections = 10
+pool_sema = threading.BoundedSemaphore(value=maxconnections)
 
 if __name__ == '__main__':
     fetchdata()

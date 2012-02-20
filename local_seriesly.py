@@ -14,7 +14,6 @@ def remove():
 		os.remove(currentdirpath + "/data/seriesdb.json")
 	except OSError:
 		pass
-	# TODO: remove all html files. config must be parsed so the right files are deleted
 	profiles = []
 	fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
 	for line in fdcfg:
