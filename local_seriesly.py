@@ -1,14 +1,19 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 
+"""local seriesly fetches data from tvrage and generates html files"""
+
 import os
 import sys
 import string
+import fetchdata
+import generatehtml
 from optparse import OptionParser
 
 
 # remove html files and fetched data
 def remove():
+    """remove working data"""
     print "Removing show data..."
     currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
     try:
@@ -42,19 +47,18 @@ def remove():
 
 # fetch data
 def fetch():
-    import fetchdata
+    """fetch data from tvrage.com"""
     fetchdata.fetchdata()
-    pass
 
 
 # generate html files
 def generate():
-    import generatehtml
+    """generate html files for profiles"""
     generatehtml.generatehtml()
-    pass
 
 
 def main():
+    """main method that parses command line arguments"""
     parser = OptionParser()
     parser.add_option("-f", "--fetch", action="store_true",
         dest="fetch", help="fetch data")
