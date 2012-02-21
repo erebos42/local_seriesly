@@ -195,11 +195,11 @@ def output_data(filtered_data, profile):
 
     for line in fdread:
         if (line.count("<!-- RECENTLY -->") == 1):
-            fdwrite.write(recently.encode("utf-8"))
+            fdwrite.write(recently)
         elif (line.count("<!-- LAST_SEVEN_DAYS -->") == 1):
-            fdwrite.write(lastsevendays.encode("utf-8"))
+            fdwrite.write(lastsevendays)
         elif (line.count("<!-- COMING_UP -->") == 1):
-            fdwrite.write(comingup.encode("utf-8"))
+            fdwrite.write(comingup)
         else:
             fdwrite.write(line)
 
@@ -295,7 +295,7 @@ def generatehtml():
     """generate html files from fetched data"""
     # load show database
     try:
-        data = json.load(open(CURRENTDIRPATH + '/data/seriesdb.json', 'rb'))
+        data = json.load(open(CURRENTDIRPATH + '/data/seriesdb.json', 'r'))
     except IOError:
         print "Couldn't find show data. Please fetch the data first!"
         return
@@ -304,12 +304,12 @@ def generatehtml():
     profiles = {}
     fdcfg = open(CURRENTDIRPATH + '/show_id.cfg', 'r')
     for line in fdcfg:
-        line = string.replace(line, " ", "")
-        if (string.find(line, "#") == -1 and string.find(line, "=") != -1):
+        line = line.replace(" ", "")
+        if (line.find("#") == -1 and line.find("=") != -1):
             line = line.strip("\n")
-            name = string.split(line, "=")[0]
-            ids = string.split(line, "=")[1]
-            ids = string.split(ids, ",")
+            name = line.split("=")[0]
+            ids = line.split("=")[1]
+            ids = ids.split(",")
             profiles.update({name: ids})
 
     # generate html file for every profile

@@ -150,7 +150,7 @@ def fetchdata():
     # so it can be used by the other script later
     json_path = CURRENTDIRPATH + '/data/seriesdb.json'
     print "[     ] Writing data to " + json_path
-    json.dump(data, open(json_path, 'wb'))
+    json.dump(data, open(json_path, 'w'))
 
     print "[     ] Finished fetching data"
 

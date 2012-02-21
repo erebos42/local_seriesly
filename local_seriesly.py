@@ -23,10 +23,10 @@ def remove():
     profiles = []
     fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
     for line in fdcfg:
-        line = string.replace(line, " ", "")
-        if (string.find(line, "#") == -1):
+        line = line.replace(" ", "")
+        if (line.find("#") == -1):
             line = line.strip("\n")
-            name = string.split(line, "=")[0]
+            name = line.split("=")[0]
             profiles.append(name)
     print "Removing profile data..."
     for profile in profiles:
