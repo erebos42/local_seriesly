@@ -13,12 +13,12 @@
 
 import urllib2
 import xml.dom.minidom as dom
-import string
 import json
 import os
 import sys
 import threading
 import httplib
+import parse_cfg
 
 # data structure (more or less):
 # - data {id, series}
@@ -115,20 +115,8 @@ def fetchdata():
     print "[     ] Starting fetching data"
 
     # http://services.tvrage.com/feeds/full_show_info.php?sid=8322
-    show_ids = []
 
-    # parse show_id config file
-    fdcfg = open(CURRENTDIRPATH + '/show_id.cfg', 'r')
-    for line in fdcfg:
-        line = string.replace(line, " ", "")
-        if (string.find(line, "#") == -1 and string.find(line, "=") != -1):
-            temp = string.split(line, "=")[1]
-            temp = string.split(temp, ",")
-            for show_id in temp:
-                show_ids.append(string.strip(show_id, "\n"))
-    # cast the show_ids to a set and back, so every show id appears only once
-    show_ids = list(set(show_ids))
-    show_ids.sort()
+    show_ids = parse_cfg.get_show_ids()
 
     data = []
 

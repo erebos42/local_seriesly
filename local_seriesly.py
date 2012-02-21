@@ -5,9 +5,9 @@
 
 import os
 import sys
-import string
 import fetchdata
 import generatehtml
+import parse_cfg
 from optparse import OptionParser
 
 
@@ -20,14 +20,7 @@ def remove():
         os.remove(currentdirpath + "/data/seriesdb.json")
     except OSError:
         pass
-    profiles = []
-    fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
-    for line in fdcfg:
-        line = line.replace(" ", "")
-        if (line.find("#") == -1):
-            line = line.strip("\n")
-            name = line.split("=")[0]
-            profiles.append(name)
+    profiles = parse_cfg.get_profile_names()
     print "Removing profile data..."
     for profile in profiles:
         try:
@@ -41,6 +34,10 @@ def remove():
         pass
     try:
         os.remove(currentdirpath + "/generatehtml.pyc")
+    except OSError:
+        pass
+    try:
+        os.remove(currentdirpath + "/parse_cfg.pyc")
     except OSError:
         pass
 

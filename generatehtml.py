@@ -12,12 +12,12 @@
 
 
 import copy
-import string
 from string import Template
 from datetime import datetime, timedelta
 import json
 import os
 import sys
+import parse_cfg
 
 # data structure:
 # - data {id, series}
@@ -301,16 +301,7 @@ def generatehtml():
         return
 
     # load cfg and store in dict
-    profiles = {}
-    fdcfg = open(CURRENTDIRPATH + '/show_id.cfg', 'r')
-    for line in fdcfg:
-        line = line.replace(" ", "")
-        if (line.find("#") == -1 and line.find("=") != -1):
-            line = line.strip("\n")
-            name = line.split("=")[0]
-            ids = line.split("=")[1]
-            ids = ids.split(",")
-            profiles.update({name: ids})
+    profiles = parse_cfg.get_config_data()
 
     # generate html file for every profile
     for profile in profiles:
