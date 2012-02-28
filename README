@@ -6,3 +6,12 @@ This is a reimplementation of seriesly without Google's App Engine or Django. It
 This project uses the CSS and HTML stuff of the original Seriesly. (https://github.com/stefanw/seriesly)
 
 local_seriesly is licensed under the GNU Affero General Public License 3.0 (http://www.gnu.org/licenses/agpl-3.0.html)
+
+==========
+Usage
+=====
+To install local_seriesly just copy all files into a directory of your choice. The directory "./data" should be accessible through a web-server (e.g. Apache).
+
+To configure your profiles edit the file "./show_id.cfg".
+
+To find the right ids go to "http://services.tvrage.com/feeds/search.php?show=SHOW_NAME" (replace SHOW_NAME with the actual name of the show) and copy the listed id to the config file.
