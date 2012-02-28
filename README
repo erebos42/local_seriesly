@@ -8,10 +8,20 @@ This project uses the CSS and HTML stuff of the original Seriesly. (https://gith
 local_seriesly is licensed under the GNU Affero General Public License 3.0 (http://www.gnu.org/licenses/agpl-3.0.html)
 
 ==========
-Usage
+Installation
 =====
 To install local_seriesly just copy all files into a directory of your choice. The directory "./data" should be accessible through a web-server (e.g. Apache).
 
 To configure your profiles edit the file "./show_id.cfg".
 
 To find the right ids go to "http://services.tvrage.com/feeds/search.php?show=SHOW_NAME" (replace SHOW_NAME with the actual name of the show) and copy the listed id to the config file.
+
+==========
+Usage
+=====
+The script can just be executed using Python (python ./local_seriesly or just ./local_seriesly). It accepts three different flags:
+  -f	fetch new data from tvrage.com and save it locally
+  -g	generate html documents for the profiles in the config file
+  -r	remove all working data of the script including the html documents and the fetched data
+
+You can just execute the script by hand whenever you need it, or configure some cron jobs. In future releases wsgi support is planned, so the html documents are generated as soon as they are needed.
