@@ -25,3 +25,13 @@ The script can just be executed using Python (python ./local_seriesly or just ./
   -r	remove all working data of the script including the html documents and the fetched data
 
 You can just execute the script by hand whenever you need it, or configure some cron jobs. In future releases wsgi support is planned, so the html documents are generated as soon as they are needed.
+
+==========
+Requirements
+=====
+To use local_seriesly you just need Python. A web server is more or less optional but useful if multiple users want to access local_seriesly.
+
+local_seriesly is developed and tested under Python 2.7.2. But its possible to convert the scripts to Python 3 using 2to3.
+
+
+
