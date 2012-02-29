@@ -5,9 +5,9 @@
 
 import os
 import sys
-import fetchdata
-import generatehtml
-import parse_cfg
+import src.fetchdata as fetchdata
+import src.generatehtml as generatehtml
+import src.parse_cfg as parse_cfg
 from optparse import OptionParser
 
 
@@ -36,15 +36,19 @@ def remove():
     # TODO: why these scripts even compiled?
     print "Removing compiled python scripts..."
     try:
-        os.remove(currentdirpath + "/fetchdata.pyc")
+        os.remove(currentdirpath + "/src/fetchdata.pyc")
     except OSError:
         pass
     try:
-        os.remove(currentdirpath + "/generatehtml.pyc")
+        os.remove(currentdirpath + "/src/generatehtml.pyc")
     except OSError:
         pass
     try:
-        os.remove(currentdirpath + "/parse_cfg.pyc")
+        os.remove(currentdirpath + "/src/parse_cfg.pyc")
+    except OSError:
+        pass
+    try:
+        os.remove(currentdirpath + "/src/__init__.pyc")
     except OSError:
         pass
 
