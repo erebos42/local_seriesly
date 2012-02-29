@@ -33,12 +33,15 @@ def filter_data(data):
     coming = []
     recently = []
 
+    # go through all shows in data
     for i in range(len(data)):
         sid = data.keys()[i]
         name = data[sid][0]["name"]
         network = data[sid][0]["network"]
         airtime = data[sid][0]["airtime"]
         episodes = data[sid][0]["episodes"]
+
+        # go through the episodes
         for temp in episodes:
             tempepisode = temp.pop()
             tempepisode["name"] = name
@@ -54,7 +57,7 @@ def filter_data(data):
             minute = airtime.split(":")[1]
 
             # what follows here is some weird time mojo.
-            # This should really be done accurately
+            # this should really be done accurately
             if (int(year) == 0):
                 year = 1
             if ((int(month) < 1) or (int(month) > 12)):
@@ -83,6 +86,7 @@ def filter_data(data):
                 tempepisode["airdate"] = temp
                 last.append(tempepisode)
 
+    # return the sorted episodes
     return {"last": last, "coming": coming, "recently": recently}
 
 
@@ -162,6 +166,8 @@ def output_data(filtered_data, profile):
     lastsevendays = ""
     recently = ""
     comingup = ""
+
+    # go through the episodes and build the html code by using the templates
     for i in range(len(filtered_data["last"]) - 1, -1, -1):
         lastsevendays += (lastseven_comingup_template.substitute(
             seasonnum=filtered_data["last"][i]["seasonnum"] + "x",
@@ -170,6 +176,7 @@ def output_data(filtered_data, profile):
             epname=filtered_data["last"][i]["title"],
             network=filtered_data["last"][i]["network"],
             deltatime=airdate_to_string(filtered_data["last"][i]["airdate"])))
+
     for i in range(len(filtered_data["coming"]) - 1, -1, -1):
         comingup += (lastseven_comingup_template.substitute(
             seasonnum=filtered_data["coming"][i]["seasonnum"] + "x",
@@ -179,6 +186,7 @@ def output_data(filtered_data, profile):
             network=filtered_data["coming"][i]["network"],
             deltatime=airdate_to_string(
             filtered_data["coming"][i]["airdate"])))
+
     for i in range(len(filtered_data["recently"]) - 1, -1, -1):
         recently += (recently_template.substitute(
             seasonnum=filtered_data["recently"][i]["seasonnum"] + "x",
@@ -193,6 +201,10 @@ def output_data(filtered_data, profile):
     fdwrite = open(CURRENTDIRPATH + "/data/" + profile + ".html", "w")
     fdread = open(CURRENTDIRPATH + "/media/template.html", "r")
 
+    # go through every line in template.html
+    # replace marker by episode data
+    # TODO: this depends on the comments beeing at the right place
+    # that should probably be changed
     for line in fdread:
         if (line.count("<!-- RECENTLY -->") == 1):
             fdwrite.write(recently)
@@ -308,6 +320,7 @@ def generatehtml():
         print "Generate HTML for: " + profile
         # copy data to a temp var. Deepcopy is used since we work on the data,
         # but we need the original data for the next profile
+        # TODO: maybe there is a faster way, so we don't have to copy the data
         tempdata = copy.deepcopy(data)
         # filter for profile show ids
         profiledata = filter_profile(tempdata, profiles[profile])

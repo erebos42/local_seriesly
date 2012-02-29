@@ -6,7 +6,7 @@
 # ToDo:
 # - add support for html datetime tags
 # - optimize data structure
-#
+# - optimize xml parsing (that is just not my thing)
 #
 #
 
@@ -30,12 +30,16 @@ import parse_cfg
 # This method fetches the data for a specific show (url)
 def get_series_info(ids, data):
     """fetch data for specific show"""
+
+    # Acquire a semaphore so the max number of threads can be controlled
     SEMA_POOL.acquire()
 
     series = []
     done = 0
     url_template = "http://services.tvrage.com/feeds/full_show_info.php?sid="
 
+    # open URL until data is received correctly
+    # TODO: this might be a problem if the data is never read correctly
     while(done == 0):
         try:
             parsed_dict = dom.parse(urllib2.urlopen(url_template + ids))
@@ -47,12 +51,15 @@ def get_series_info(ids, data):
         except IOError:
             print "[" + ids.rjust(5) + "] Connection timed out - retry"
 
+    # filter the dom tree for data
+    # TODO: this seems pretty fragile
     seriesname = (parsed_dict.getElementsByTagName('name')[0].toxml()
         .replace("<name>", "").replace("</name>", ""))
     network = (parsed_dict.getElementsByTagName('network')[0].toxml()
         .replace("<network country=US>", "").replace("</network>", ""))
     airtime = (parsed_dict.getElementsByTagName('airtime')[0].toxml()
         .replace("<airtime>", "").replace("</airtime>", ""))
+    # append fetched show-data and get episode info
     series.append({
         "name": seriesname,
         "network": network,
@@ -61,8 +68,11 @@ def get_series_info(ids, data):
     })
 
     print "[" + ids.rjust(5) + "] Stopping thread to fetch data"
+
+    # append show-data to global data
     data.append({ids: series})
 
+    # release semaphore
     SEMA_POOL.release()
 
 
@@ -70,6 +80,8 @@ def get_series_info(ids, data):
 def get_episodes_info(parsed_dict):
     """parse dom dict for episodes"""
     episodes = []
+
+    # go through all episodes and get the episode info
     for node in parsed_dict.getElementsByTagName("episode"):
         episodes.append(get_episode_info(node))
     return episodes
@@ -78,12 +90,16 @@ def get_episodes_info(parsed_dict):
 # parse dom node for episode info
 def get_episode_info(node):
     """parse dom node for episode info"""
+
+    # TODO: again: pretty fragile xml operations
     children = node.childNodes
     episode = []
     epnum = 0
     title = ""
     airdate = ""
 
+    # go through the nodes and look for needed data
+    # TODO: more xml stuff
     for child in children:
         if (child.toxml().count("seasonnum") == 2):
             epnum = child.toxml()
@@ -92,12 +108,15 @@ def get_episode_info(node):
         if (child.toxml().count("airdate") == 2):
             airdate = child.toxml()
 
+    # try to get the season number
+    # not all episodes have a appropriate season (e.g. Specials...)
     seasonnum = ""
     try:
         seasonnum = node.parentNode.attributes["no"].value
     except KeyError:
         pass
 
+    # pack all data
     episode.append({
         "epnum": (str(epnum).replace("<seasonnum>", "")
             .replace("</seasonnum>", "")),
@@ -116,11 +135,13 @@ def fetchdata():
 
     # http://services.tvrage.com/feeds/full_show_info.php?sid=8322
 
+    # get the show ids from the config file
     show_ids = parse_cfg.get_show_ids()
 
     data = []
 
     # fetch data for every show and store in data dict
+    # every show is fetched in its own thread
     threads = []
     for ids in show_ids:
         print "[" + ids.rjust(5) + "] Starting thread to fetch data"
