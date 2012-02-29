@@ -17,6 +17,7 @@ def parse_config():
     currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
 
     # open the config file
+    # TODO: what if the config file is not there -> panic!
     fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
 
     # parse the config file

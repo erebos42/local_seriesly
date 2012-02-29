@@ -4,6 +4,7 @@
 """local seriesly fetches data from tvrage and generates html files"""
 
 import os
+import json
 import sys
 import src.fetchdata as fetchdata
 import src.generatehtml as generatehtml
@@ -53,6 +54,46 @@ def remove():
         pass
 
 
+def list_all_shows():
+    """list all shows currently in one or more profiles"""
+    currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
+
+    try:
+        data = json.load(open(currentdirpath + '/data/seriesdb.json', 'r'))
+    except IOError:
+        print "Couldn't find show data. Please fetch the data first!"
+        return
+
+    temp = []
+
+    for show in data:
+        show_id = show.keys().pop()
+        show_name = show[show_id].pop()["name"]
+        temp.append(show_name + " (id: " + show_id + ")")
+    temp.sort()
+    for line in temp:
+        print line
+
+
+def profiles():
+    """list all profiles including their ids"""
+    currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
+
+    try:
+        data = json.load(open(currentdirpath + '/data/seriesdb.json', 'r'))
+    except IOError:
+        print "Couldn't find show data. Please fetch the data first!"
+        return
+
+    profiles = parse_cfg.get_config_data()
+    for profile in profiles:
+        print "Profile: " + profile
+        show_ids = profiles[profile]
+        for show_id in show_ids:
+            # TODO: add show name to output
+            print "\t" + show_id
+
+
 # fetch data
 def fetch():
     """fetch data from tvrage.com"""
@@ -80,6 +121,11 @@ def main():
     #    metavar="FILE")
     parser.add_option("-r", "--remove", action="store_true",
         dest="clean", help="remove html files and fetched data")
+    parser.add_option("-l", "--list", action="store_true",
+        dest="listshows", help="list all shows by name that are currently in a profile")
+    parser.add_option("-p", "--profiles", action="store_true",
+        dest="profiles", help="list all profiles and their shows")
+
     (options, args) = parser.parse_args()
 
     # go through the options
@@ -87,6 +133,10 @@ def main():
         remove()
     if options.fetch:
         fetch()
+    if options.listshows:
+        list_all_shows()
+    if options.profiles:
+        profiles()
     if options.generate:
         generate()
 
