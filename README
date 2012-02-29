@@ -19,10 +19,15 @@ To find the right ids go to "http://services.tvrage.com/feeds/search.php?show=SH
 ==========
 Usage
 =====
-The script can just be executed using Python (python ./local_seriesly or just ./local_seriesly). It accepts three different flags:
-  -f	fetch new data from tvrage.com and save it locally
-  -g	generate html documents for the profiles in the config file
-  -r	remove all working data of the script including the html documents and the fetched data
+local_seriesly.py [options]
+
+Options:
+  -h, --help      show this help message and exit
+  -f, --fetch     fetch data
+  -g, --generate  generate the html documents
+  -r, --remove    remove html files and fetched data
+  -l, --list      list all shows by name that are currently in a profile
+  -p, --profiles  list all profiles and their shows
 
 You can just execute the script by hand whenever you need it, or configure some cron jobs. In future releases wsgi support is planned, so the html documents are generated as soon as they are needed.
 
