@@ -37,6 +37,3 @@ Requirements
 To use local_seriesly you just need Python. A web server is more or less optional but useful if multiple users want to access local_seriesly.
 
 local_seriesly is developed and tested under Python 2.7.2. But its possible to convert the scripts to Python 3 using 2to3.
-
-
-
