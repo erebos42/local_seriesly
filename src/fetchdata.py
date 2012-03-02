@@ -26,32 +26,30 @@ import parse_cfg
 # --- episodes {episode}
 # ---- episode {epnum, title}
 
+
 class Fetchdata(object):
-
-    CURRENTDIRPATH = ""
-    MAXCONNECTIONS = 0
-    SEMA_POOL = None
+    """fetch data for local_seriesly"""
+    currentdirpath = ""
+    maxconnections = 0
+    sema_pool = None
     parsecfg_obj = None
-
 
     def __init__(self):
         # get the script path, so the config- and json-file can be found
-        self.CURRENTDIRPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
+        self.currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
 
         self.parsecfg_obj = parse_cfg.ParseCFG()
 
         # limit the number of threads/connections that can be made simultaneous
-        self.MAXCONNECTIONS = 10
-        self.SEMA_POOL = threading.BoundedSemaphore(value=self.MAXCONNECTIONS)
-        pass
-
+        self.maxconnections = 10
+        self.sema_pool = threading.BoundedSemaphore(value=self.maxconnections)
 
     # This method fetches the data for a specific show (url)
     def get_series_info(self, ids, data):
         """fetch data for specific show"""
 
         # Acquire a semaphore so the max number of threads can be controlled
-        self.SEMA_POOL.acquire()
+        self.sema_pool.acquire()
 
         series = []
         done = 0
@@ -72,12 +70,9 @@ class Fetchdata(object):
 
         # filter the dom tree for data
         # TODO: this seems pretty fragile
-        seriesname = (parsed_dict.getElementsByTagName('name')[0].toxml()
-            .replace("<name>", "").replace("</name>", ""))
-        network = (parsed_dict.getElementsByTagName('network')[0].toxml()
-            .replace("<network country=US>", "").replace("</network>", ""))
-        airtime = (parsed_dict.getElementsByTagName('airtime')[0].toxml()
-            .replace("<airtime>", "").replace("</airtime>", ""))
+        seriesname = (parsed_dict.getElementsByTagName('name')[0].toxml().replace("<name>", "").replace("</name>", ""))
+        network = (parsed_dict.getElementsByTagName('network')[0].toxml().replace("<network country=US>", "").replace("</network>", ""))
+        airtime = (parsed_dict.getElementsByTagName('airtime')[0].toxml().replace("<airtime>", "").replace("</airtime>", ""))
         # append fetched show-data and get episode info
         series.append({
             "name": seriesname,
@@ -92,8 +87,7 @@ class Fetchdata(object):
         data.append({ids: series})
 
         # release semaphore
-        self.SEMA_POOL.release()
-
+        self.sema_pool.release()
 
     # parse dom dict for episodes
     def get_episodes_info(self, parsed_dict):
@@ -105,9 +99,9 @@ class Fetchdata(object):
             episodes.append(self.get_episode_info(node))
         return episodes
 
-
     # parse dom node for episode info
-    def get_episode_info(self, node):
+    @classmethod
+    def get_episode_info(cls, node):
         """parse dom node for episode info"""
 
         # TODO: again: pretty fragile xml operations
@@ -147,7 +141,6 @@ class Fetchdata(object):
         })
         return episode
 
-
     def fetchdata(self):
         """main method to fetch data"""
         print "[     ] Starting fetching data"
@@ -164,8 +157,7 @@ class Fetchdata(object):
         threads = []
         for ids in show_ids:
             print "[" + ids.rjust(5) + "] Starting thread to fetch data"
-            temp_thread = (threading.Thread(target=self.get_series_info,
-                args=(ids, data)))
+            temp_thread = (threading.Thread(target=self.get_series_info, args=(ids, data)))
             threads.append(temp_thread)
         for thread in threads:
             thread.start()
@@ -176,7 +168,7 @@ class Fetchdata(object):
 
         # dump the data to the json database,
         # so it can be used by the other script later
-        json_path = self.CURRENTDIRPATH + '/data/seriesdb.json'
+        json_path = self.currentdirpath + '/data/seriesdb.json'
         print "[     ] Writing data to " + json_path
         json.dump(data, open(json_path, 'w'))
 

@@ -6,10 +6,12 @@
 import os
 import sys
 
+
 class ParseCFG(object):
+    """Class that parses the local_serisly config file"""
 
     # {name: [ids...]}
-    CONFIG_DATA_PROFILES = None
+    config_data_profiles = None
 
 #    def parse_config(self):
     def __init__(self):
@@ -18,7 +20,7 @@ class ParseCFG(object):
         # get the current dir
         currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
 
-        self.CONFIG_DATA_PROFILES = {}
+        self.config_data_profiles = {}
 
         # open the config file
         # TODO: what if the config file is not there -> panic!
@@ -32,24 +34,21 @@ class ParseCFG(object):
                 temp = line.split("=")
                 name = temp[0]
                 ids = temp[1].strip("\n").split(",")
-                self.CONFIG_DATA_PROFILES.update({name: ids})
-
+                self.config_data_profiles.update({name: ids})
 
     def get_config_data(self):
         """get complete config data with profiles and ids"""
-        return self.CONFIG_DATA_PROFILES
-
+        return self.config_data_profiles
 
     def get_profile_names(self):
         """get a list of all profile names"""
-        return self.CONFIG_DATA_PROFILES.keys()
-
+        return self.config_data_profiles.keys()
 
     def get_show_ids(self):
         """get all unique show ids"""
         # filter the profile id to a list of all ids
         show_ids = []
-        for batch in self.CONFIG_DATA_PROFILES.values():
+        for batch in self.config_data_profiles.values():
             for show_id in batch:
                 show_ids.append(show_id)
 

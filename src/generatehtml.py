@@ -27,20 +27,20 @@ import parse_cfg
 
 
 class GenerateHTML(object):
+    """generates the html files from the fetched data"""
 
     # Find the script path, so later we can find the show id file and json db
 
-    CURRENTDIRPATH = ""
+    currentdirpath = ""
     parsecfg_obj = None
 
-
     def __init__(self):
-        self.CURRENTDIRPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
+        self.currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
         self.parsecfg_obj = parse_cfg.ParseCFG()
 
-
     # filter data for air date: last seven days, recently and coming up soon
-    def filter_data(self, data):
+    @classmethod
+    def filter_data(cls, data):
         """filter data for air date"""
         last = []
         coming = []
@@ -78,8 +78,7 @@ class GenerateHTML(object):
                 if ((int(day) < 1) or (int(month) > 31)):
                     day = 1
 
-                airdatetime = (datetime(int(year), int(month), int(day),
-                    int(hour), int(minute), 0, 0))
+                airdatetime = (datetime(int(year), int(month), int(day), int(hour), int(minute), 0, 0))
 
                 # for now we just assume one timezone
                 # TODO: implement real timezone stuff
@@ -102,10 +101,10 @@ class GenerateHTML(object):
         # return the sorted episodes
         return {"last": last, "coming": coming, "recently": recently}
 
-
     # output the data on the console for debug purposes
     # hasn't been updated in quiet a while and probably won't show all data
-    def output_data_debug(self, filtered_data):
+    @classmethod
+    def output_data_debug(cls, filtered_data):
         """output data on the console for debug purposes"""
         last = filtered_data["last"]
         coming = filtered_data["coming"]
@@ -115,23 +114,19 @@ class GenerateHTML(object):
         print "Last:"
         print "-----"
         for i in range(len(last)):
-            print (last[i]["name"] + " - " + last[i]["seasonnum"] + "x" +
-                last[i]["epnum"] + " - " + last[i]["title"])
+            print (last[i]["name"] + " - " + last[i]["seasonnum"] + "x" + last[i]["epnum"] + " - " + last[i]["title"])
 
         print "=========="
         print "Coming:"
         print "-----"
         for i in range(len(coming)):
-            print (coming[i]["name"] + " - " + coming[i]["seasonnum"] + "x" +
-                coming[i]["epnum"] + " - " + coming[i]["title"])
+            print (coming[i]["name"] + " - " + coming[i]["seasonnum"] + "x" + coming[i]["epnum"] + " - " + coming[i]["title"])
 
         print "=========="
         print "Recently:"
         print "-----"
         for i in range(len(recently)):
-            print (recently[i]["name"] + " - " + recently[i]["seasonnum"] + "x" +
-                recently[i]["epnum"] + " - " + recently[i]["title"])
-
+            print (recently[i]["name"] + " - " + recently[i]["seasonnum"] + "x" + recently[i]["epnum"] + " - " + recently[i]["title"])
 
     # output data for a profile in html format
     # TODO: use these <time> tags
@@ -211,8 +206,8 @@ class GenerateHTML(object):
                 filtered_data["recently"][i]["airdate"])))
 
         # use template.html to create new html file
-        fdwrite = open(self.CURRENTDIRPATH + "/data/" + profile + ".html", "w")
-        fdread = open(self.CURRENTDIRPATH + "/media/template.html", "r")
+        fdwrite = open(self.currentdirpath + "/data/" + profile + ".html", "w")
+        fdread = open(self.currentdirpath + "/media/template.html", "r")
 
         # go through every line in template.html
         # replace marker by episode data
@@ -228,11 +223,11 @@ class GenerateHTML(object):
             else:
                 fdwrite.write(line)
 
-
     # convert the airdate to a string
     # TODO: the "hour(s)" and "day(s)" parts shouldn't be added by hand.
     # I guess theres a better version out there
-    def airdate_to_string(self, airdate):
+    @classmethod
+    def airdate_to_string(cls, airdate):
         """convert airdate to a string"""
     # example data:
     # -2 days, 10:29:04.862377
@@ -264,9 +259,9 @@ class GenerateHTML(object):
 
         return ret
 
-
     # sort data according to airdate
-    def sort_data(self, filtered_data):
+    @classmethod
+    def sort_data(cls, filtered_data):
         """sort data according to airdate"""
         sortedcoming = []
         while (len(filtered_data["coming"]) != 0):
@@ -301,13 +296,11 @@ class GenerateHTML(object):
             if (maxindex != -1):
                 sortedlast.append(filtered_data["last"].pop(maxindex))
 
-        return {"last": sortedlast,
-            "coming": sortedcoming,
-            "recently": sortedrecently}
-
+        return {"last": sortedlast, "coming": sortedcoming, "recently": sortedrecently}
 
     # filter data for the wanted show ids
-    def filter_profile(self, data, ids):
+    @classmethod
+    def filter_profile(cls, data, ids):
         """filter data for wanted show ids"""
         tempdata = {}
         for i in range(len(data)):
@@ -315,12 +308,11 @@ class GenerateHTML(object):
                 tempdata.update(data[i])
         return tempdata
 
-
     def generatehtml(self):
         """generate html files from fetched data"""
         # load show database
         try:
-            data = json.load(open(self.CURRENTDIRPATH + '/data/seriesdb.json', 'r'))
+            data = json.load(open(self.currentdirpath + '/data/seriesdb.json', 'r'))
         except IOError:
             print "Couldn't find show data. Please fetch the data first!"
             return
