@@ -26,7 +26,7 @@ import parse_cfg
 # ---- episode {epnum, title}
 
 
-class GenerateHTML:
+class GenerateHTML(object):
 
     # Find the script path, so later we can find the show id file and json db
 

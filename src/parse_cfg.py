@@ -6,7 +6,7 @@
 import os
 import sys
 
-class ParseCFG:
+class ParseCFG(object):
 
     # {name: [ids...]}
     CONFIG_DATA_PROFILES = None

@@ -26,7 +26,7 @@ import parse_cfg
 # --- episodes {episode}
 # ---- episode {epnum, title}
 
-class Fetchdata:
+class Fetchdata(object):
 
     CURRENTDIRPATH = ""
     MAXCONNECTIONS = 0

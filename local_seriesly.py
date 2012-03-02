@@ -13,7 +13,7 @@ from optparse import OptionParser
 
 
 
-class LocalSeriesly:
+class LocalSeriesly(object):
 
     parsecfg_obj = None
     fetchdata_obj = None
