@@ -26,313 +26,320 @@ import parse_cfg
 # ---- episode {epnum, title}
 
 
-# filter data for air date: last seven days, recently and coming up soon
-def filter_data(data):
-    """filter data for air date"""
-    last = []
-    coming = []
-    recently = []
+class GenerateHTML:
 
-    # go through all shows in data
-    for i in range(len(data)):
-        sid = data.keys()[i]
-        name = data[sid][0]["name"]
-        network = data[sid][0]["network"]
-        airtime = data[sid][0]["airtime"]
-        episodes = data[sid][0]["episodes"]
+    # Find the script path, so later we can find the show id file and json db
 
-        # go through the episodes
-        for temp in episodes:
-            tempepisode = temp.pop()
-            tempepisode["name"] = name
-            tempepisode["network"] = network
-
-            airdate = tempepisode["airdate"]
-
-            tempairdate = airdate.split("-")
-            year = tempairdate[0]
-            month = tempairdate[1]
-            day = tempairdate[2]
-            hour = airtime.split(":")[0]
-            minute = airtime.split(":")[1]
-
-            # what follows here is some weird time mojo.
-            # this should really be done accurately
-            if (int(year) == 0):
-                year = 1
-            if ((int(month) < 1) or (int(month) > 12)):
-                month = 1
-            if ((int(day) < 1) or (int(month) > 31)):
-                day = 1
-
-            airdatetime = (datetime(int(year), int(month), int(day),
-                int(hour), int(minute), 0, 0))
-
-            # for now we just assume one timezone
-            # TODO: implement real timezone stuff
-            airdatetime = airdatetime + timedelta(hours=6)
-
-            # calculate relative airtime
-            temp = datetime.now() - airdatetime
-
-            # filter depending on relative airtime
-            if (temp < timedelta(days=0)):
-                tempepisode["airdate"] = temp
-                coming.append(tempepisode)
-            elif ((temp >= timedelta(days=0)) and (temp < timedelta(days=1))):
-                tempepisode["airdate"] = temp
-                recently.append(tempepisode)
-            elif ((temp >= timedelta(days=1)) and (temp < timedelta(days=7))):
-                tempepisode["airdate"] = temp
-                last.append(tempepisode)
-
-    # return the sorted episodes
-    return {"last": last, "coming": coming, "recently": recently}
+    CURRENTDIRPATH = ""
+    parsecfg_obj = None
 
 
-# output the data on the console for debug purposes
-# hasn't been updated in quiet a while and probably won't show all data
-def output_data_debug(filtered_data):
-    """output data on the console for debug purposes"""
-    last = filtered_data["last"]
-    coming = filtered_data["coming"]
-    recently = filtered_data["recently"]
-
-    print "=========="
-    print "Last:"
-    print "-----"
-    for i in range(len(last)):
-        print (last[i]["name"] + " - " + last[i]["seasonnum"] + "x" +
-            last[i]["epnum"] + " - " + last[i]["title"])
-
-    print "=========="
-    print "Coming:"
-    print "-----"
-    for i in range(len(coming)):
-        print (coming[i]["name"] + " - " + coming[i]["seasonnum"] + "x" +
-            coming[i]["epnum"] + " - " + coming[i]["title"])
-
-    print "=========="
-    print "Recently:"
-    print "-----"
-    for i in range(len(recently)):
-        print (recently[i]["name"] + " - " + recently[i]["seasonnum"] + "x" +
-            recently[i]["epnum"] + " - " + recently[i]["title"])
+    def __init__(self):
+        self.CURRENTDIRPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
+        self.parsecfg_obj = parse_cfg.ParseCFG()
 
 
-# output data for a profile in html format
-# TODO: use these <time> tags
-def output_data(filtered_data, profile):
-    """output data to html files"""
-    recently_template = Template('\
-        <li class=\"vevent episode-item\">\
-            <div class=\"clearfix\" style=\"width:100%\">\
-                <div class=\"left\">\
-                    <div class=\"vevent-meta\">\
-                        <time class=\"dtstart\" \
-                            datetime=\"2011-11-12T01:00:00\">\
-                                $deltatime </time>\
-                        <time class=\"dtend\" \
-                            datetime=\"2011-11-12T02:00:00\"></time> \
-                                <span class=\"location\">on $network</span>,\
-                                    $seasonnum$epnum\
+    # filter data for air date: last seven days, recently and coming up soon
+    def filter_data(self, data):
+        """filter data for air date"""
+        last = []
+        coming = []
+        recently = []
+
+        # go through all shows in data
+        for i in range(len(data)):
+            sid = data.keys()[i]
+            name = data[sid][0]["name"]
+            network = data[sid][0]["network"]
+            airtime = data[sid][0]["airtime"]
+            episodes = data[sid][0]["episodes"]
+
+            # go through the episodes
+            for temp in episodes:
+                tempepisode = temp.pop()
+                tempepisode["name"] = name
+                tempepisode["network"] = network
+
+                airdate = tempepisode["airdate"]
+
+                tempairdate = airdate.split("-")
+                year = tempairdate[0]
+                month = tempairdate[1]
+                day = tempairdate[2]
+                hour = airtime.split(":")[0]
+                minute = airtime.split(":")[1]
+
+                # what follows here is some weird time mojo.
+                # this should really be done accurately
+                if (int(year) == 0):
+                    year = 1
+                if ((int(month) < 1) or (int(month) > 12)):
+                    month = 1
+                if ((int(day) < 1) or (int(month) > 31)):
+                    day = 1
+
+                airdatetime = (datetime(int(year), int(month), int(day),
+                    int(hour), int(minute), 0, 0))
+
+                # for now we just assume one timezone
+                # TODO: implement real timezone stuff
+                airdatetime = airdatetime + timedelta(hours=6)
+
+                # calculate relative airtime
+                temp = datetime.now() - airdatetime
+
+                # filter depending on relative airtime
+                if (temp < timedelta(days=0)):
+                    tempepisode["airdate"] = temp
+                    coming.append(tempepisode)
+                elif ((temp >= timedelta(days=0)) and (temp < timedelta(days=1))):
+                    tempepisode["airdate"] = temp
+                    recently.append(tempepisode)
+                elif ((temp >= timedelta(days=1)) and (temp < timedelta(days=7))):
+                    tempepisode["airdate"] = temp
+                    last.append(tempepisode)
+
+        # return the sorted episodes
+        return {"last": last, "coming": coming, "recently": recently}
+
+
+    # output the data on the console for debug purposes
+    # hasn't been updated in quiet a while and probably won't show all data
+    def output_data_debug(self, filtered_data):
+        """output data on the console for debug purposes"""
+        last = filtered_data["last"]
+        coming = filtered_data["coming"]
+        recently = filtered_data["recently"]
+
+        print "=========="
+        print "Last:"
+        print "-----"
+        for i in range(len(last)):
+            print (last[i]["name"] + " - " + last[i]["seasonnum"] + "x" +
+                last[i]["epnum"] + " - " + last[i]["title"])
+
+        print "=========="
+        print "Coming:"
+        print "-----"
+        for i in range(len(coming)):
+            print (coming[i]["name"] + " - " + coming[i]["seasonnum"] + "x" +
+                coming[i]["epnum"] + " - " + coming[i]["title"])
+
+        print "=========="
+        print "Recently:"
+        print "-----"
+        for i in range(len(recently)):
+            print (recently[i]["name"] + " - " + recently[i]["seasonnum"] + "x" +
+                recently[i]["epnum"] + " - " + recently[i]["title"])
+
+
+    # output data for a profile in html format
+    # TODO: use these <time> tags
+    def output_data(self, filtered_data, profile):
+        """output data to html files"""
+        recently_template = Template('\
+            <li class=\"vevent episode-item\">\
+                <div class=\"clearfix\" style=\"width:100%\">\
+                    <div class=\"left\">\
+                        <div class=\"vevent-meta\">\
+                            <time class=\"dtstart\" \
+                                datetime=\"2011-11-12T01:00:00\">\
+                                    $deltatime </time>\
+                            <time class=\"dtend\" \
+                                datetime=\"2011-11-12T02:00:00\"></time> \
+                                    <span class=\"location\">on $network</span>,\
+                                        $seasonnum$epnum\
+                        </div>\
+                        <span title=\"Season $seasonnum, Episode $epnum\"\
+                            class=\"summary\">$seriesname: \
+                                &ldquo;$epname&rdquo;</span>\
                     </div>\
-                    <span title=\"Season $seasonnum, Episode $epnum\"\
-                        class=\"summary\">$seriesname: \
-                            &ldquo;$epname&rdquo;</span>\
                 </div>\
-            </div>\
-        </li>\
-    ')
+            </li>\
+        ')
 
-    lastseven_comingup_template = Template('\
-        <li class=\"vevent episode-item\">\
-            <div class=\"vevent-meta\">\
-                <time class=\"dtstart\" datetime=\"2011-11-11T03:00:00\">\
-                    $deltatime </time>\
-                <time class=\"dtend\" datetime=\"2011-11-11T04:00:00\">\
-                    </time> <span class=\"location\">on $network</span>,\
-                        $seasonnum$epnum\
-            </div>\
-            <span title=\"Season $seasonnum, Episode $epnum\"\
-                class=\"summary\">$seriesname: &ldquo;$epname&rdquo;</span>\
-        </li>\
-    ')
+        lastseven_comingup_template = Template('\
+            <li class=\"vevent episode-item\">\
+                <div class=\"vevent-meta\">\
+                    <time class=\"dtstart\" datetime=\"2011-11-11T03:00:00\">\
+                        $deltatime </time>\
+                    <time class=\"dtend\" datetime=\"2011-11-11T04:00:00\">\
+                        </time> <span class=\"location\">on $network</span>,\
+                            $seasonnum$epnum\
+                </div>\
+                <span title=\"Season $seasonnum, Episode $epnum\"\
+                    class=\"summary\">$seriesname: &ldquo;$epname&rdquo;</span>\
+            </li>\
+        ')
 
-    # sort data
-    filtered_data = sort_data(filtered_data)
+        # sort data
+        filtered_data = self.sort_data(filtered_data)
 
-    # paste data in template
-    lastsevendays = ""
-    recently = ""
-    comingup = ""
+        # paste data in template
+        lastsevendays = ""
+        recently = ""
+        comingup = ""
 
-    # go through the episodes and build the html code by using the templates
-    for i in range(len(filtered_data["last"]) - 1, -1, -1):
-        lastsevendays += (lastseven_comingup_template.substitute(
-            seasonnum=filtered_data["last"][i]["seasonnum"] + "x",
-            epnum=filtered_data["last"][i]["epnum"],
-            seriesname=filtered_data["last"][i]["name"],
-            epname=filtered_data["last"][i]["title"],
-            network=filtered_data["last"][i]["network"],
-            deltatime=airdate_to_string(filtered_data["last"][i]["airdate"])))
+        # go through the episodes and build the html code by using the templates
+        for i in range(len(filtered_data["last"]) - 1, -1, -1):
+            lastsevendays += (lastseven_comingup_template.substitute(
+                seasonnum=filtered_data["last"][i]["seasonnum"] + "x",
+                epnum=filtered_data["last"][i]["epnum"],
+                seriesname=filtered_data["last"][i]["name"],
+                epname=filtered_data["last"][i]["title"],
+                network=filtered_data["last"][i]["network"],
+                deltatime=self.airdate_to_string(filtered_data["last"][i]["airdate"])))
 
-    for i in range(len(filtered_data["coming"]) - 1, -1, -1):
-        comingup += (lastseven_comingup_template.substitute(
-            seasonnum=filtered_data["coming"][i]["seasonnum"] + "x",
-            epnum=filtered_data["coming"][i]["epnum"],
-            seriesname=filtered_data["coming"][i]["name"],
-            epname=filtered_data["coming"][i]["title"],
-            network=filtered_data["coming"][i]["network"],
-            deltatime=airdate_to_string(
-            filtered_data["coming"][i]["airdate"])))
+        for i in range(len(filtered_data["coming"]) - 1, -1, -1):
+            comingup += (lastseven_comingup_template.substitute(
+                seasonnum=filtered_data["coming"][i]["seasonnum"] + "x",
+                epnum=filtered_data["coming"][i]["epnum"],
+                seriesname=filtered_data["coming"][i]["name"],
+                epname=filtered_data["coming"][i]["title"],
+                network=filtered_data["coming"][i]["network"],
+                deltatime=self.airdate_to_string(
+                filtered_data["coming"][i]["airdate"])))
 
-    for i in range(len(filtered_data["recently"]) - 1, -1, -1):
-        recently += (recently_template.substitute(
-            seasonnum=filtered_data["recently"][i]["seasonnum"] + "x",
-            epnum=filtered_data["recently"][i]["epnum"],
-            seriesname=filtered_data["recently"][i]["name"],
-            epname=filtered_data["recently"][i]["title"],
-            network=filtered_data["recently"][i]["network"],
-            deltatime=airdate_to_string(
-            filtered_data["recently"][i]["airdate"])))
+        for i in range(len(filtered_data["recently"]) - 1, -1, -1):
+            recently += (recently_template.substitute(
+                seasonnum=filtered_data["recently"][i]["seasonnum"] + "x",
+                epnum=filtered_data["recently"][i]["epnum"],
+                seriesname=filtered_data["recently"][i]["name"],
+                epname=filtered_data["recently"][i]["title"],
+                network=filtered_data["recently"][i]["network"],
+                deltatime=self.airdate_to_string(
+                filtered_data["recently"][i]["airdate"])))
 
-    # use template.html to create new html file
-    fdwrite = open(CURRENTDIRPATH + "/data/" + profile + ".html", "w")
-    fdread = open(CURRENTDIRPATH + "/media/template.html", "r")
+        # use template.html to create new html file
+        fdwrite = open(self.CURRENTDIRPATH + "/data/" + profile + ".html", "w")
+        fdread = open(self.CURRENTDIRPATH + "/media/template.html", "r")
 
-    # go through every line in template.html
-    # replace marker by episode data
-    # TODO: this depends on the comments beeing at the right place
-    # that should probably be changed
-    for line in fdread:
-        if (line.count("<!-- RECENTLY -->") == 1):
-            fdwrite.write(recently)
-        elif (line.count("<!-- LAST_SEVEN_DAYS -->") == 1):
-            fdwrite.write(lastsevendays)
-        elif (line.count("<!-- COMING_UP -->") == 1):
-            fdwrite.write(comingup)
+        # go through every line in template.html
+        # replace marker by episode data
+        # TODO: this depends on the comments beeing at the right place
+        # that should probably be changed
+        for line in fdread:
+            if (line.count("<!-- RECENTLY -->") == 1):
+                fdwrite.write(recently)
+            elif (line.count("<!-- LAST_SEVEN_DAYS -->") == 1):
+                fdwrite.write(lastsevendays)
+            elif (line.count("<!-- COMING_UP -->") == 1):
+                fdwrite.write(comingup)
+            else:
+                fdwrite.write(line)
+
+
+    # convert the airdate to a string
+    # TODO: the "hour(s)" and "day(s)" parts shouldn't be added by hand.
+    # I guess theres a better version out there
+    def airdate_to_string(self, airdate):
+        """convert airdate to a string"""
+    # example data:
+    # -2 days, 10:29:04.862377
+    # 2 day(s), 10 hour(s) ago
+
+        ret = ""
+        days = 0
+        temp = str(airdate).split(" ")
+        if ((len(temp) > 1) and ((temp[1] == "days,") or (temp[1] == "day,"))):
+            days = int(temp[0])
+            temp = temp[2].split(":")
+            hours = int(temp[0])
+            mins = int(temp[1])
+            if (days < 0):
+                days = days + 1
+                hours = 23 - hours
+                mins = 59 - mins
         else:
-            fdwrite.write(line)
+            temp = temp[0].split(":")
+            hours = int(temp[0])
+            mins = int(temp[1])
+
+        if (days == 0):
+            ret = str(hours) + " hour(s), " + str(mins) + " min ago "
+        elif (days > 0):
+            ret = str(days) + " day(s), " + str(hours) + " hour(s) ago "
+        elif (days < 0):
+            ret = "in " + str(-days) + " day(s), " + str(hours) + " hour(s) "
+
+        return ret
 
 
-# convert the airdate to a string
-# TODO: the "hour(s)" and "day(s)" parts shouldn't be added by hand.
-# I guess theres a better version out there
-def airdate_to_string(airdate):
-    """convert airdate to a string"""
-# example data:
-# -2 days, 10:29:04.862377
-# 2 day(s), 10 hour(s) ago
+    # sort data according to airdate
+    def sort_data(self, filtered_data):
+        """sort data according to airdate"""
+        sortedcoming = []
+        while (len(filtered_data["coming"]) != 0):
+            maxdate = timedelta(hours=0)
+            maxindex = -1
+            for i in range(len(filtered_data["coming"])):
+                if (filtered_data["coming"][i]["airdate"] < maxdate):
+                    maxdate = filtered_data["coming"][i]["airdate"]
+                    maxindex = i
+            if (maxindex != -1):
+                sortedcoming.append(filtered_data["coming"].pop(maxindex))
 
-    ret = ""
-    days = 0
-    temp = str(airdate).split(" ")
-    if ((len(temp) > 1) and ((temp[1] == "days,") or (temp[1] == "day,"))):
-        days = int(temp[0])
-        temp = temp[2].split(":")
-        hours = int(temp[0])
-        mins = int(temp[1])
-        if (days < 0):
-            days = days + 1
-            hours = 23 - hours
-            mins = 59 - mins
-    else:
-        temp = temp[0].split(":")
-        hours = int(temp[0])
-        mins = int(temp[1])
+        sortedrecently = []
+        while (len(filtered_data["recently"]) != 0):
+            maxdate = timedelta(hours=0)
+            maxindex = -1
+            for i in range(len(filtered_data["recently"])):
+                if (filtered_data["recently"][i]["airdate"] > maxdate):
+                    maxdate = filtered_data["recently"][i]["airdate"]
+                    maxindex = i
+            if (maxindex != -1):
+                sortedrecently.append(filtered_data["recently"].pop(maxindex))
 
-    if (days == 0):
-        ret = str(hours) + " hour(s), " + str(mins) + " min ago "
-    elif (days > 0):
-        ret = str(days) + " day(s), " + str(hours) + " hour(s) ago "
-    elif (days < 0):
-        ret = "in " + str(-days) + " day(s), " + str(hours) + " hour(s) "
+        sortedlast = []
+        while (len(filtered_data["last"]) != 0):
+            maxdate = timedelta(hours=0)
+            maxindex = -1
+            for i in range(len(filtered_data["last"])):
+                if (filtered_data["last"][i]["airdate"] > maxdate):
+                    maxdate = filtered_data["last"][i]["airdate"]
+                    maxindex = i
+            if (maxindex != -1):
+                sortedlast.append(filtered_data["last"].pop(maxindex))
 
-    return ret
-
-
-# sort data according to airdate
-def sort_data(filtered_data):
-    """sort data according to airdate"""
-    sortedcoming = []
-    while (len(filtered_data["coming"]) != 0):
-        maxdate = timedelta(hours=0)
-        maxindex = -1
-        for i in range(len(filtered_data["coming"])):
-            if (filtered_data["coming"][i]["airdate"] < maxdate):
-                maxdate = filtered_data["coming"][i]["airdate"]
-                maxindex = i
-        if (maxindex != -1):
-            sortedcoming.append(filtered_data["coming"].pop(maxindex))
-
-    sortedrecently = []
-    while (len(filtered_data["recently"]) != 0):
-        maxdate = timedelta(hours=0)
-        maxindex = -1
-        for i in range(len(filtered_data["recently"])):
-            if (filtered_data["recently"][i]["airdate"] > maxdate):
-                maxdate = filtered_data["recently"][i]["airdate"]
-                maxindex = i
-        if (maxindex != -1):
-            sortedrecently.append(filtered_data["recently"].pop(maxindex))
-
-    sortedlast = []
-    while (len(filtered_data["last"]) != 0):
-        maxdate = timedelta(hours=0)
-        maxindex = -1
-        for i in range(len(filtered_data["last"])):
-            if (filtered_data["last"][i]["airdate"] > maxdate):
-                maxdate = filtered_data["last"][i]["airdate"]
-                maxindex = i
-        if (maxindex != -1):
-            sortedlast.append(filtered_data["last"].pop(maxindex))
-
-    return {"last": sortedlast,
-        "coming": sortedcoming,
-        "recently": sortedrecently}
+        return {"last": sortedlast,
+            "coming": sortedcoming,
+            "recently": sortedrecently}
 
 
-# filter data for the wanted show ids
-def filter_profile(data, ids):
-    """filter data for wanted show ids"""
-    tempdata = {}
-    for i in range(len(data)):
-        if (ids.count(data[i].keys()[0]) > 0):
-            tempdata.update(data[i])
-    return tempdata
+    # filter data for the wanted show ids
+    def filter_profile(self, data, ids):
+        """filter data for wanted show ids"""
+        tempdata = {}
+        for i in range(len(data)):
+            if (ids.count(data[i].keys()[0]) > 0):
+                tempdata.update(data[i])
+        return tempdata
 
 
-def generatehtml():
-    """generate html files from fetched data"""
-    # load show database
-    try:
-        data = json.load(open(CURRENTDIRPATH + '/data/seriesdb.json', 'r'))
-    except IOError:
-        print "Couldn't find show data. Please fetch the data first!"
-        return
+    def generatehtml(self):
+        """generate html files from fetched data"""
+        # load show database
+        try:
+            data = json.load(open(self.CURRENTDIRPATH + '/data/seriesdb.json', 'r'))
+        except IOError:
+            print "Couldn't find show data. Please fetch the data first!"
+            return
 
-    # load cfg and store in dict
-    profiles = parse_cfg.get_config_data()
+        # load cfg and store in dict
+        profiles = self.parsecfg_obj.get_config_data()
 
-    # generate html file for every profile
-    for profile in profiles:
-        print "Generate HTML for: " + profile
-        # copy data to a temp var. Deepcopy is used since we work on the data,
-        # but we need the original data for the next profile
-        # TODO: maybe there is a faster way, so we don't have to copy the data
-        tempdata = copy.deepcopy(data)
-        # filter for profile show ids
-        profiledata = filter_profile(tempdata, profiles[profile])
-        # filter data for airdate
-        filtered_data = filter_data(profiledata)
-        # output data to html
-        output_data(filtered_data, profile)
-        # output data to console
-        #output_data_debug(filtered_data)
-
-# Find the script path, so later we can find the show id file and json db
-CURRENTDIRPATH = os.path.dirname(os.path.realpath(sys.argv[0]))
-
-if __name__ == '__main__':
-    generatehtml()
+        # generate html file for every profile
+        for profile in profiles:
+            print "Generate HTML for: " + profile
+            # copy data to a temp var. Deepcopy is used since we work on the data,
+            # but we need the original data for the next profile
+            # TODO: maybe there is a faster way, so we don't have to copy the data
+            tempdata = copy.deepcopy(data)
+            # filter for profile show ids
+            profiledata = self.filter_profile(tempdata, profiles[profile])
+            # filter data for airdate
+            filtered_data = self.filter_data(profiledata)
+            # output data to html
+            self.output_data(filtered_data, profile)
+            # output data to console
+            #output_data_debug(filtered_data)
