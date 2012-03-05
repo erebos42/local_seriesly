@@ -45,7 +45,7 @@ class LocalSeriesly(object):
                 pass
 
         # remove the compiled python scripts
-        # TODO: why these scripts even compiled?
+        # TODO: why are these scripts even compiled?
         print "Removing compiled python scripts..."
         try:
             os.remove(currentdirpath + "/src/fetchdata.pyc")

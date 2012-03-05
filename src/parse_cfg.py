@@ -13,7 +13,6 @@ class ParseCFG(object):
     # {name: [ids...]}
     config_data_profiles = None
 
-#    def parse_config(self):
     def __init__(self):
         """parse config file"""
 
@@ -23,8 +22,12 @@ class ParseCFG(object):
         self.config_data_profiles = {}
 
         # open the config file
-        # TODO: what if the config file is not there -> panic!
-        fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
+        try:
+            fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
+        except IOError:
+            # kill local_seriesly
+            print "Could not find config file"
+            os._exit(0)
 
         # parse the config file
         # TODO: make this a little more robust (maybe use XML...)
