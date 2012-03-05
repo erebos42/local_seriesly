@@ -31,6 +31,7 @@ class Fetchdata(object):
     """fetch data for local_seriesly"""
     currentdirpath = ""
     maxconnections = 0
+    maxerrorcount = 10
     sema_pool = None
     parsecfg_obj = None
 
@@ -53,20 +54,22 @@ class Fetchdata(object):
 
         series = []
         done = 0
+        fail_count = 0
         url_template = "http://services.tvrage.com/feeds/full_show_info.php?sid="
 
         # open URL until data is received correctly
-        # TODO: this might be a problem if the data is never read correctly
         while(done == 0):
             try:
                 parsed_dict = dom.parse(urllib2.urlopen(url_template + ids))
                 done = 1
-            except httplib.BadStatusLine:
+            except (httplib.BadStatusLine, httplib.IncompleteRead, IOError):
                 print "[" + ids.rjust(5) + "] Connection error - retry"
-            except httplib.IncompleteRead:
-                print "[" + ids.rjust(5) + "] Connection error - retry"
-            except IOError:
-                print "[" + ids.rjust(5) + "] Connection timed out - retry"
+                # check maxerrorcount to prevent starvation
+                fail_count += 1
+                if (fail_count >= self.maxerrorcount):
+                    print "[" + ids.rjust(5) + "] To many connection errors - Aborting local_serisly"
+                    # TODO: we should go for a clean exit
+                    os._exit(0)
 
         # filter the dom tree for data
         # TODO: this seems pretty fragile
