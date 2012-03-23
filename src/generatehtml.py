@@ -215,11 +215,12 @@ class GenerateHTML(object):
         # that should probably be changed
         for line in fdread:
             if (line.count("<!-- RECENTLY -->") == 1):
-                fdwrite.write(recently)
+                # TODO: figure out this whole utf-8 thing...
+                fdwrite.write(recently.encode('UTF-8'))
             elif (line.count("<!-- LAST_SEVEN_DAYS -->") == 1):
-                fdwrite.write(lastsevendays)
+                fdwrite.write(lastsevendays.encode('UTF-8'))
             elif (line.count("<!-- COMING_UP -->") == 1):
-                fdwrite.write(comingup)
+                fdwrite.write(comingup.encode('UTF-8'))
             else:
                 fdwrite.write(line)
 
