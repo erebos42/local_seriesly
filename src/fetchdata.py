@@ -13,6 +13,7 @@
 
 import urllib2
 import xml.dom.minidom as dom
+import xml.parsers.expat
 import json
 import os
 import sys
@@ -62,7 +63,7 @@ class Fetchdata(object):
             try:
                 parsed_dict = dom.parse(urllib2.urlopen(url_template + ids))
                 done = 1
-            except (httplib.BadStatusLine, httplib.IncompleteRead, IOError):
+            except (httplib.BadStatusLine, httplib.IncompleteRead, IOError, xml.parsers.expat.ExpatError) as e:
                 print "[" + ids.rjust(5) + "] Connection error - retry"
                 # check maxerrorcount to prevent starvation
                 fail_count += 1
