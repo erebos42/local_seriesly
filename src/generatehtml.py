@@ -221,6 +221,10 @@ class GenerateHTML(object):
                 fdwrite.write(lastsevendays.encode('UTF-8'))
             elif (line.count("<!-- COMING_UP -->") == 1):
                 fdwrite.write(comingup.encode('UTF-8'))
+            elif (line.count("<!-- TIME_GENERATED -->") == 1):
+                now = datetime.now()
+                time_str = "%d-%d-%d %d:%d:%d.%d" % (now.year, now.month, now.day, now.hour, now.minute, now.second, now.microsecond)
+                fdwrite.write(time_str)
             else:
                 fdwrite.write(line)
 
