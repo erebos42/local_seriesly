@@ -12,6 +12,8 @@ Installation
 =====
 To install local_seriesly just copy all files into a directory of your choice. The directory "./data" should be accessible through a web-server (e.g. Apache).
 
+You can also use the local_seriesly_server. It uses CherryPy and lets you generate and access the html files. The data still needs to be fetched regulary. For this you can use a cronjob. The port, ip and path of the server can be changed in the source file.
+
 To configure your profiles edit the file "./show_id.cfg".
 
 To find the right ids go to "http://services.tvrage.com/feeds/search.php?show=SHOW_NAME" (replace SHOW_NAME with the actual name of the show) and copy the listed id to the config file.
@@ -29,11 +31,15 @@ Options:
   -l, --list      list all shows by name that are currently in a profile
   -p, --profiles  list all profiles and their shows
 
-You can just execute the script by hand whenever you need it, or configure some cron jobs. In future releases wsgi support is planned, so the html documents are generated as soon as they are needed.
+You can just execute the script by hand whenever you need it, or configure some cron jobs.
+
+If the local_seriesly_server is running, you can access your profile using following URL: 'http://127.0.0.1:8070/show?PROFILENAME'.
 
 ==========
 Requirements
 =====
 To use local_seriesly you just need Python. A web server is more or less optional but useful if multiple users want to access local_seriesly.
+
+To use the local_serielsy_server you also need CherryPy.
 
 local_seriesly is developed and tested under Python 2.7.2. But its possible to convert the scripts to Python 3 using 2to3.

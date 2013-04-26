@@ -99,7 +99,6 @@ class LocalSeriesly(object):
     def fetch(self):
         """fetch data from tvrage.com"""
         self.fetchdata_obj.fetchdata()
-        raw_input("Press key to exit...")
 
     # generate html files
     def generate(self):
