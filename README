@@ -33,7 +33,7 @@ Options:
 
 You can just execute the script by hand whenever you need it, or configure some cron jobs.
 
-If the local_seriesly_server is running, you can access your profile using following URL: 'http://127.0.0.1:8070/show?PROFILENAME'.
+If the local_seriesly_server is running, you can access your profile using following URL: 'http://127.0.0.1:8070/show?PROFILENAME'. To fetch data, simply replace 'show' with 'fetch' in the URL.
 
 ==========
 Requirements

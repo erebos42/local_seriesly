@@ -46,11 +46,23 @@ def show_data(environ, start_response):
 def fetch_data(environ, start_response):
     ls.fetch()
 
+    # get profile name from URL
+    profile = environ["QUERY_STRING"]
+
+    htmlfilepath = LS_PATH + "/media/data_fetched_template.html"
+
+    # open html file and put lines to output
+    fd = open(htmlfilepath, 'r')
+    ret = ""
+    for line in fd:
+        line = line.replace("<!-- PROFILE_NAME -->", profile)
+        ret += line
+
     # build response
     status = '200 OK'
     response_headers = [('Content-type','text/html')]
     start_response(status, response_headers)
-    return ['data fetched...']
+    return [ret]
 
 # start wsgi server
 d = wsgiserver.WSGIPathInfoDispatcher({URI_PATH: show_data, FETCH_PATH: fetch_data})
