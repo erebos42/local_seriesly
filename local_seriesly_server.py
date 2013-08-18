@@ -14,6 +14,7 @@ IP = '0.0.0.0'
 URI_PATH = '/show'
 FETCH_PATH = '/fetch'
 LS_PATH = '/opt/local_seriesly'
+DEFAULT_PROFILE = "myprofile"
 
 # connection to local seriesly to generate html pages
 ls = LocalSeriesly()
@@ -26,6 +27,8 @@ def show_data(environ, start_response):
 
     # get profile name from URL
     profile = environ["QUERY_STRING"]
+    if not profile:
+        profile = DEFAULT_PROFILE
 
     # build html file path
     # TODO: fix os dependent parts
@@ -48,6 +51,8 @@ def fetch_data(environ, start_response):
 
     # get profile name from URL
     profile = environ["QUERY_STRING"]
+    if not profile:
+        profile = DEFAULT_PROFILE
 
     htmlfilepath = LS_PATH + "/media/data_fetched_template.html"
 
