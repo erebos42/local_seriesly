@@ -234,38 +234,25 @@ class GenerateHTML(object):
                 fdwrite.write(line)
 
     # convert the airdate to a string
-    # TODO: the "hour(s)" and "day(s)" parts shouldn't be added by hand.
-    # I guess theres a better version out there
     @classmethod
     def airdate_to_string(cls, airdate):
         """convert airdate to a string"""
-    # example data:
-    # -2 days, 10:29:04.862377
-    # 2 day(s), 10 hour(s) ago
-
+        # example data:
+        # -2 days, 10:29:04.862377
+        # 2 day(s), 10 hour(s) ago
         ret = ""
-        days = 0
-        temp = str(airdate).split(" ")
-        if ((len(temp) > 1) and ((temp[1] == "days,") or (temp[1] == "day,"))):
-            days = int(temp[0])
-            temp = temp[2].split(":")
-            hours = int(temp[0])
-            mins = int(temp[1])
-            if (days < 0):
-                days = days + 1
-                hours = 23 - hours
-                mins = 59 - mins
-        else:
-            temp = temp[0].split(":")
-            hours = int(temp[0])
-            mins = int(temp[1])
 
-        if (days == 0):
-            ret = str(hours) + " hour(s), " + str(mins) + " min ago "
-        elif (days > 0):
+        days  = airdate.days
+        hours = airdate.seconds // 3600
+        mins  = (airdate.seconds // 60) % 60
+        if airdate >= timedelta(days = 1):
             ret = str(days) + " day(s), " + str(hours) + " hour(s) ago "
-        elif (days < 0):
-            ret = "in " + str(-days) + " day(s), " + str(hours) + " hour(s) "
+        elif airdate >= timedelta(days = 0):
+            ret = str(hours) + " hour(s), " + str(mins) + " min ago "
+        elif airdate >= timedelta(days = -1):
+            ret = "in " + str(23 - hours) + " hour(s), " + str(59 - mins) + " min(s)"
+        else:
+            ret = "in " + str(-days - 1) + " day(s), " + str(23 - hours) + " hour(s) "
 
         return ret
 
