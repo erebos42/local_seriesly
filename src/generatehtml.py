@@ -230,6 +230,8 @@ class GenerateHTML(object):
                 tf_datetime = datetime.fromtimestamp(tf_epoch)
                 tf_str = "%d-%d-%d %d:%d:%d.%d" % (tf_datetime.year, tf_datetime.month, tf_datetime.day, tf_datetime.hour, tf_datetime.minute, tf_datetime.second, tf_datetime.microsecond)
                 fdwrite.write(tf_str)
+            elif (line.count("<!-- FETCH_BUTTON_FORM -->") == 1):
+                fdwrite.write("<form action=\"fetch?%s\">" % (profile))
             else:
                 fdwrite.write(line)
 
