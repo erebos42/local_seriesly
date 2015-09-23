@@ -28,7 +28,7 @@ import parse_cfg
 # ---- episode {epnum, title}
 
 
-class Fetchdata(object):
+class FetchdataTVRage(object):
     """fetch data for local_seriesly"""
     currentdirpath = ""
     maxconnections = 0

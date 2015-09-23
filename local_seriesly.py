@@ -6,7 +6,7 @@
 import os
 import json
 import sys
-import src.fetchdata as fetchdata
+import src.fetchdatatvmaze as fetchdata
 import src.generatehtml as generatehtml
 import src.parse_cfg as parse_cfg
 from optparse import OptionParser
@@ -21,7 +21,7 @@ class LocalSeriesly(object):
 
     def __init__(self):
         self.parsecfg_obj = parse_cfg.ParseCFG()
-        self.fetchdata_obj = fetchdata.Fetchdata()
+        self.fetchdata_obj = fetchdata.FetchdataTVMaze()
         self.generate_obj = generatehtml.GenerateHTML()
 
     # remove html files and fetched data
@@ -105,6 +105,42 @@ class LocalSeriesly(object):
         """generate html files for profiles"""
         self.generate_obj.generatehtml()
 
+    def convert(self):
+        # TODO: this is duplicated code... and more than a bit dirty! -> rewrite
+        # get the current dir
+        currentdirpath = os.path.dirname(os.path.realpath(sys.argv[0]))
+
+        # open the config file
+        try:
+            fdcfg = open(currentdirpath + '/show_id.cfg', 'r')
+            fdcfg_new = open(currentdirpath + '/show_id_new.cfg', 'w')
+        except IOError:
+            # kill local_seriesly
+            print "Could not find config file"
+            os._exit(0)
+
+        # parse the config file
+        for line in fdcfg:
+            if (line.find('#') != -1 or line.find('=') == -1):
+                fdcfg_new.write(line)
+            else:
+                temp = line.split("=")
+                name = temp[0]
+                ids_old = temp[1].strip("\n").split(",")
+                ids_new = []
+                for i in ids_old:
+                    new_id = self.fetchdata_obj.id_tvrage_to_tvmaze(i)
+                    if new_id is not None:
+                        ids_new.append(str(new_id))
+                fdcfg_new.write(name + "=")
+                fdcfg_new.write(",".join(ids_new))
+                fdcfg_new.write("\n")
+        fdcfg.close()
+        fdcfg_new.close()
+        os.rename(currentdirpath + '/show_id.cfg', currentdirpath + '/show_id.cfg~')
+        os.rename(currentdirpath + '/show_id_new.cfg', currentdirpath + '/show_id.cfg')
+        
+
     def main(self):
         """main method that parses command line arguments"""
 
@@ -119,10 +155,13 @@ class LocalSeriesly(object):
         parser.add_option("-r", "--remove", action="store_true", dest="clean", help="remove html files and fetched data")
         parser.add_option("-l", "--list", action="store_true", dest="listshows", help="list all shows by name that are currently in a profile")
         parser.add_option("-p", "--profiles", action="store_true", dest="profiles", help="list all profiles and their shows")
+        parser.add_option("--convert", action="store_true", dest="convert", help="convert profile from tvrage to tvmaze as best as can (there might be shows missing). Careful: trying to convert a tvmaze profile, will mess with the ids!")
 
         (options, args) = parser.parse_args()
 
         # go through the options
+        if options.convert:
+            self.convert()
         if options.clean:
             self.remove()
         if options.fetch:
