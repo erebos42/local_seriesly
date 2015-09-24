@@ -110,14 +110,33 @@ class FetchdataTVMaze(object):
             return None
             
         airtime = resp["schedule"]["time"]
-        # Stupid Hack: Make sure the airtime is valid
+        
+        # Stupid Hack: Make sure all data is valid
+        name = ""
+        try:
+            name = resp["name"]
+        except:
+            pass
+          
+        # try either network or webChannel (e.g. Netflix) name  
+        network = ""
+        try:
+            network = resp["network"]["name"]
+        except:
+            try:
+                network = resp["webChannel"]["name"]
+            except:
+                pass
+                
         if airtime == "":
           airtime = "20:00"
+          
+        episodes = self.fetch_episode_info(show_id)
 
-        ret = {"name": resp["name"],
+        ret = {"name": name,
                "airtime": airtime,
-               "network": resp["network"]["name"],
-               "episodes": self.fetch_episode_info(show_id)}
+               "network": network,
+               "episodes": episodes}
         return ret
         
 
