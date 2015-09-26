@@ -78,6 +78,34 @@ class FetchdataTVMaze(object):
         except:
             return None
 
+    def search_show(self, search_string):
+        url_template = r'http://api.tvmaze.com/search/shows?q={query}'
+        
+        try:
+            resp = urllib2.urlopen(url_template.format(query=search_string)).read()
+            resp = json.loads(resp)
+        except:
+            print("Could not search show!")
+            return []
+
+        ret = []
+        for e in resp:
+            name = e["show"]["name"]
+            sid  = e["show"]["id"]
+            network = ""
+            try:
+                network = e["show"]["network"]["name"]
+            except:
+                try:
+                    network = e["show"]["webChannel"]["name"]
+                except:
+                    pass
+            year = ""
+            year = e["show"]["premiered"].split('-')[0]
+            ret.append({"name": name, "show_id": sid, "network": network, "year": year})
+        return ret
+        
+
     def fetch_episode_info(self, show_id):
         url_template = r'http://api.tvmaze.com/shows/{show_id}/episodes'
         
@@ -86,7 +114,7 @@ class FetchdataTVMaze(object):
             resp = json.loads(resp)
         except:
             print("Could not fetch episode info!")
-            return []        
+            return []
 
         episodes = []
         for e in resp:

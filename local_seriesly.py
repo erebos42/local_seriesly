@@ -140,6 +140,10 @@ class LocalSeriesly(object):
         os.rename(currentdirpath + '/show_id.cfg', currentdirpath + '/show_id.cfg~')
         os.rename(currentdirpath + '/show_id_new.cfg', currentdirpath + '/show_id.cfg')
         
+    def search(self, search_query):
+        search_data = self.fetchdata_obj.search_show(search_query)
+        for e in search_data:
+            print("{show_id:5}: {name} ({year})".format(show_id=e["show_id"], name=e["name"], year=e["year"]))
 
     def main(self):
         """main method that parses command line arguments"""
@@ -156,10 +160,13 @@ class LocalSeriesly(object):
         parser.add_option("-l", "--list", action="store_true", dest="listshows", help="list all shows by name that are currently in a profile")
         parser.add_option("-p", "--profiles", action="store_true", dest="profiles", help="list all profiles and their shows")
         parser.add_option("--convert", action="store_true", dest="convert", help="convert profile from tvrage to tvmaze as best as can (there might be shows missing). Careful: trying to convert a tvmaze profile, will mess with the ids!")
+        parser.add_option("-s", "--search", action="store", dest="search", help="Search for show ids by search query")
 
         (options, args) = parser.parse_args()
 
         # go through the options
+        if options.search:
+            self.search(options.search)
         if options.convert:
             self.convert()
         if options.clean:
